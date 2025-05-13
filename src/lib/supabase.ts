@@ -1,12 +1,9 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { supabase as supabaseClient } from '@/integrations/supabase/client';
 
-// These keys are public/safe to expose in client-side code
-// You need to replace these with your actual Supabase project details
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Export the supabase client directly from the integration
+export const supabase = supabaseClient;
 
 export async function uploadScreenshot(file: File) {
   const fileExt = file.name.split('.').pop();
