@@ -18,8 +18,6 @@ interface Tab {
 // Make chrome available globally
 declare global {
   interface Window {
-    chrome?: {
-      tabs?: Chrome['tabs'];
-    };
+    chrome?: Chrome;
   }
 }
