@@ -28,14 +28,14 @@ export async function uploadScreenshot(file: File) {
     .getPublicUrl(`public/${fileName}`);
     
   // If using database to track links
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  
   const { data: linkData, error: linkError } = await supabase
     .from('shared_screenshots')
-    .insert([
-      { 
-        url: publicUrl,
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-      },
-    ])
+    .insert({
+      url: publicUrl, 
+      expires_at: expiresAt.toISOString() // Convert Date to ISO string
+    })
     .select();
     
   if (linkError) {
