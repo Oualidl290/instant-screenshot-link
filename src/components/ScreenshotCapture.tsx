@@ -1,13 +1,14 @@
 
-import React, { useState, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { uploadScreenshot } from '@/lib/supabase';
-import { Camera, Copy, Link, CheckCircle2, History, Trash2 } from "lucide-react";
+import { Copy, Link, CheckCircle2, History, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { isExtension } from "@/utils/extensionDetection";
+import WebCapture from "./WebCapture";
+import ExtensionCapture from "./ExtensionCapture";
 
 interface ScreenshotHistory {
   id: string;
@@ -16,8 +17,6 @@ interface ScreenshotHistory {
 }
 
 const ScreenshotCapture: React.FC = () => {
-  const [capturing, setCapturing] = useState<boolean>(false);
-  const [uploading, setUploading] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [shareableUrl, setShareableUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -27,8 +26,8 @@ const ScreenshotCapture: React.FC = () => {
   });
   
   const { toast } = useToast();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const targetRef = useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const isRunningAsExtension = isExtension();
 
   const saveToHistory = (url: string) => {
     const newItem = {
@@ -42,66 +41,10 @@ const ScreenshotCapture: React.FC = () => {
     localStorage.setItem('screenshotHistory', JSON.stringify(updatedHistory));
   };
 
-  const handleScreenshot = async () => {
-    setCapturing(true);
-    try {
-      // We'll capture the whole page for this demo
-      // In a real app, you'd want to capture a specific area or window
-      const canvas = await html2canvas(document.body);
-      
-      // Convert canvas to blob
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-        }, 'image/png');
-      });
-      
-      // Create file from blob
-      const file = new File([blob], `screenshot-${Date.now()}.png`, { type: 'image/png' });
-      
-      // Create URL for preview
-      const objectUrl = URL.createObjectURL(blob);
-      setPreviewUrl(objectUrl);
-      
-      // Auto upload for seamless experience
-      await handleUpload(file);
-      
-      toast({
-        title: "Screenshot captured!",
-        description: "Your screenshot is ready to share.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Capture failed",
-        description: "There was a problem capturing your screenshot.",
-      });
-      console.error(error);
-    } finally {
-      setCapturing(false);
-    }
-  };
-
-  const handleUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const url = await uploadScreenshot(file);
-      setShareableUrl(url);
-      saveToHistory(url);
-      toast({
-        title: "Upload complete!",
-        description: "Your screenshot has been uploaded.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Upload failed",
-        description: "There was a problem uploading your screenshot.",
-      });
-      console.error(error);
-    } finally {
-      setUploading(false);
-    }
+  const handleCaptureComplete = (preview: string, shareUrl: string) => {
+    setPreviewUrl(preview);
+    setShareableUrl(shareUrl);
+    saveToHistory(shareUrl);
   };
 
   const handleCopyLink = () => {
@@ -142,7 +85,9 @@ const ScreenshotCapture: React.FC = () => {
           Screenshot & Share
         </h1>
         <p className="text-muted-foreground mt-2">
-          Capture, upload, and share screenshots in seconds.
+          {isRunningAsExtension ? 
+            "Capture tab, upload, and share screenshots in seconds." :
+            "Capture, upload, and share screenshots in seconds."}
         </p>
       </div>
       
@@ -156,16 +101,10 @@ const ScreenshotCapture: React.FC = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="mb-6">
-                <Button 
-                  onClick={handleScreenshot}
-                  disabled={capturing || uploading}
-                  className="gradient-btn w-full py-6 text-lg"
-                >
-                  {capturing ? "Capturing..." : 
-                   uploading ? "Uploading..." : 
-                   "Capture Screenshot"} 
-                  <Camera className="ml-2" size={20} />
-                </Button>
+                {isRunningAsExtension ? 
+                  <ExtensionCapture onCaptureComplete={handleCaptureComplete} /> :
+                  <WebCapture onCaptureComplete={handleCaptureComplete} />
+                }
               </div>
               
               {previewUrl && (
