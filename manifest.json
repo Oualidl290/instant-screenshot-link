@@ -1,8 +1,7 @@
 
 {
   "manifest_version": 3,
-  "name": "ScreenSnap - Capture & Share",
-  "description": "Instantly capture, upload and share screenshots with anyone.",
+  "name": "Instant Screenshot Share",
   "version": "1.0",
   "action": {
     "default_popup": "index.html",
@@ -12,10 +11,11 @@
       "128": "icon128.png"
     }
   },
+  "permissions": ["activeTab", "clipboardWrite"],
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": ["activeTab", "clipboardWrite"]
+  "description": "Capture and share screenshots in one click."
 }
