@@ -3,7 +3,7 @@
 
 // Chrome extension API type definitions
 interface Chrome {
-  tabs: {
+  tabs?: {
     query: (queryInfo: { active: boolean; currentWindow: boolean }) => Promise<Tab[]>;
     captureVisibleTab: () => Promise<string>;
   };
@@ -18,8 +18,8 @@ interface Tab {
 // Make chrome available globally
 declare global {
   interface Window {
-    chrome?: Chrome;
+    chrome?: {
+      tabs?: Chrome['tabs'];
+    };
   }
-  var chrome: Chrome;
 }
-
