@@ -18,15 +18,16 @@ const ExtensionCapture: React.FC<ExtensionCaptureProps> = ({ onCaptureComplete }
     setCapturing(true);
     
     try {
-      if (!chrome || !chrome.tabs) {
+      // Check if we have access to the chrome API
+      if (typeof window.chrome === 'undefined' || !window.chrome.tabs) {
         throw new Error("Chrome extension APIs not available");
       }
       
       // Query for the active tab
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const [tab] = await window.chrome.tabs.query({ active: true, currentWindow: true });
       
       // Capture the visible tab
-      const dataUrl = await chrome.tabs.captureVisibleTab();
+      const dataUrl = await window.chrome.tabs.captureVisibleTab();
       
       // Convert data URL to blob
       const blob = await fetch(dataUrl).then(r => r.blob());
