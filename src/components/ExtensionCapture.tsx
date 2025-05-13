@@ -19,7 +19,7 @@ const ExtensionCapture: React.FC<ExtensionCaptureProps> = ({ onCaptureComplete }
     
     try {
       // Check if we have access to the chrome API
-      if (!('chrome' in window) || !window.chrome?.tabs) {
+      if (!window.chrome || !window.chrome.tabs) {
         throw new Error("Chrome extension APIs not available");
       }
       

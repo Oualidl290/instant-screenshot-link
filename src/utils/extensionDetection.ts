@@ -5,5 +5,6 @@
 export const isExtension = (): boolean => {
   return typeof window !== 'undefined' && 
          'chrome' in window &&
-         !!window.chrome?.tabs;
+         !!window.chrome &&
+         !!window.chrome.tabs;
 };

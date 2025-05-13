@@ -5,7 +5,7 @@
 interface Chrome {
   tabs?: {
     query: (queryInfo: { active: boolean; currentWindow: boolean }) => Promise<Tab[]>;
-    captureVisibleTab: () => Promise<string>;
+    captureVisibleTab: (windowId?: number) => Promise<string>;
   };
 }
 
